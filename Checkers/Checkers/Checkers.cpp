@@ -3,11 +3,15 @@
 
 #include "stdafx.h"
 #include <iostream>
+#include <string>
+#include <sstream>
 using namespace std;
 
 int const Cols = 10;
 int const Rows = 10;
 void DisplayBoard(int board[Rows-2][Cols-2]);
+bool CheckIfTurnisValid(char player, char c_1x, int c_1y, char c_2x, int c_2y, int board[Rows - 2][Cols - 2]);
+int charConvert(char charToConv);
 
 int main()
 {
@@ -31,25 +35,42 @@ int main()
 	cout << "Welcome to checkers !! \n\n";
 	cout << "Hit P to play: ";
 	cin >> choice;
-	
+	cin.ignore();
+
 	if ((choice == 'p' || choice == 'P'))
 	{
 		DisplayBoard(board_2Darray);
+		cin.ignore();
 		//while (isGameOver)
+		
 
 		while (!isXTurnValid)
 		{
-			char coord_1x, coord_2x;
-			int coord_1y, coord_2y;
-			cout << "\n" << "Player X's turn to move from > ";
-			cin >> coord_1x;
-			cout << ", ";
-			cin >> coord_1y;
-			cout << " to ";
-			cin >> coord_2x;
-			cout << ", ";
-			cin >> coord_2y;
+			int delimPos = 0;
+			string playerInp, token, delimiter = " ";
+			
+			cout << "\n" << "player 'x' > ";
+			getline(cin, playerInp);
+			//cout << playerInp.length();	
 
+			int playerInpArraysize = (playerInp.length() + 1)/ 3;
+			string *playerInpArray = new string[playerInpArraysize];
+			
+			int i = 0;
+			stringstream ssin(playerInp);
+			while (ssin.good() && i < playerInpArraysize)
+				{
+					ssin >> playerInpArray[i];
+					++i;
+				}
+			for (i = 0; i < playerInpArraysize; i++) {
+				cout << playerInpArray[i] << endl;
+			}
+
+			char coord_1x, coord_2x;
+			int coord_1y, coord_2y;		
+
+			/*
 			if (CheckIfTurnisValid('x', coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray))
 			{
 				isXTurnValid = true;
@@ -58,7 +79,11 @@ int main()
 			{
 				cout << "\n Invalid X move !";
 			}
+			*/
 		}
+		
+		//Check Win 
+		//Disp board
 
 		while (!isOTurnValid)
 		{
@@ -140,9 +165,10 @@ bool CheckIfTurnisValid(char player, char c_1x, int c_1y, char c_2x, int c_2y, i
 				return false;
 		}
 
-		if (board[c_2x - 'a'][c_2y - 1] == charConvert('.'))
+		//check if player is moving to an Empty block
+		if (board[c_2x - 'a'][c_2y - 1] != charConvert('.'))
 		{
-
+			return false;
 		}
 
 
@@ -151,7 +177,7 @@ bool CheckIfTurnisValid(char player, char c_1x, int c_1y, char c_2x, int c_2y, i
 	}
 	
 	else
-		return false;
+		return false;			//If the player is not X and not O
 }
 
 int charConvert(char charToConv)
