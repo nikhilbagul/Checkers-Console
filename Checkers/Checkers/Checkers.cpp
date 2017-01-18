@@ -9,9 +9,17 @@ using namespace std;
 
 int const Cols = 10;
 int const Rows = 10;
+#define EMPTY 1
+#define PlayerX 2
+#define PlayerO 3
+#define Xking 4
+#define Yking 5
+
 void DisplayBoard(int board[Rows-2][Cols-2]);
-bool CheckIfTurnisValid(char player, char c_1x, int c_1y, char c_2x, int c_2y, int board[Rows - 2][Cols - 2]);
+bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board[Rows - 2][Cols - 2]);
 int charConvert(char charToConv);
+char intConvert(int intToConv);
+void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, int c_2y);
 
 int main()
 {
@@ -47,48 +55,101 @@ int main()
 		while (!isXTurnValid)
 		{
 			int delimPos = 0;
-			string playerInp, token, delimiter = " ";
+			string playerInp;
+			int numberOfValidChars = 0;
 			
+			GOTOFLAG:
 			cout << "\n" << "player 'x' > ";
 			getline(cin, playerInp);
-			//cout << playerInp.length();	
+			char *playerInpCharacters = new char[playerInp.length()];
 
-			int playerInpArraysize = (playerInp.length() + 1)/ 3;
-			string *playerInpArray = new string[playerInpArraysize];
-			
-			int i = 0;
-			stringstream ssin(playerInp);
-			while (ssin.good() && i < playerInpArraysize)
-				{
-					ssin >> playerInpArray[i];
-					++i;
-				}
-			for (i = 0; i < playerInpArraysize; i++) {
-				cout << playerInpArray[i] << endl;
-			}
-
-			char coord_1x, coord_2x;
-			int coord_1y, coord_2y;		
-
-			/*
-			if (CheckIfTurnisValid('x', coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray))
+			if (playerInp.length() == 5 || playerInp.length() == 8)
 			{
-				isXTurnValid = true;
+				
+				strcpy(playerInpCharacters, playerInp.c_str());
+				//playerInp.copy(playerInpCharacters, playerInpArraysize);
+				for (int i = 0; i < playerInp.length(); i++)
+				{
+					if (i==2 || i==5)
+					{
+						if (!isspace(playerInpCharacters[i]))
+						{
+							cout << "\nInValid Input ! PLease enter the co-ordinates in the correct format !";
+							goto GOTOFLAG;
+						}
+					}
+					
+					else
+					{
+						playerInpCharacters[numberOfValidChars] = playerInpCharacters[i];
+						//cout << playerInpCharacters[validchars] << endl;
+						numberOfValidChars++;
+					}					
+				}				
 			}
+
+
 			else
 			{
-				cout << "\n Invalid X move !";
+				cout << "\nInvalid Input !  PLease enter the co-ordinates in the correct format !";
+				goto GOTOFLAG;
 			}
-			*/
-		}
-		
-		//Check Win 
-		//Disp board
 
-		while (!isOTurnValid)
+			
+			int coord_1x, coord_1y, coord_2x, coord_2y;
+			for (int i = 0; i < numberOfValidChars / 2; i = i+2)							//check for bounds of board
+			{
+				if ((int)playerInpCharacters[i] < 97 || (int)playerInpCharacters[i] > 104)
+				{
+					cout << "\nInvalid Input1 !";
+					goto GOTOFLAG;
+				}
+
+				if ((int)playerInpCharacters[i+1] < 48 || (int)playerInpCharacters[i+1] > 57)
+				{
+					cout << "\nInvalid Input2 !";					
+					goto GOTOFLAG;
+				}
+
+				if ((int)playerInpCharacters[i+2] < 97 || (int)playerInpCharacters[i+2] > 104)
+				{
+					cout << "\nInvalid Input3 !";
+					goto GOTOFLAG;
+				}
+
+				if ((int)playerInpCharacters[i+3] < 48 || (int)playerInpCharacters[i+3] > 57)
+				{
+					cout << "\nInvalid Input4 !";
+					goto GOTOFLAG;
+				}
+				
+				else
+				{
+					coord_1x = (int)playerInpCharacters[i];
+					coord_1y = (int)playerInpCharacters[i+1];
+					coord_2x = (int)playerInpCharacters[i+2];
+					coord_2y = (int)playerInpCharacters[i+3];
+
+					if (CheckIfTurnisValid(PlayerX, coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray))
+					{
+						isXTurnValid = true;
+					}
+					else
+					{
+						cout << "\n Invalid X move !";
+					}
+				}
+			}			
+		}	
+
+		DisplayBoard(board_2Darray);
+		//Disp board
+		//Check Win 
+		
+
+		while (!isOTurnValid) // re write for player 'o'
 		{
-			char coord_1x, coord_2x;
-			int coord_1y, coord_2y;
+			int coord_1x, coord_1y, coord_2x, coord_2y;
 			cout << "\n" << "Player O's turn to move from > ";
 			cin >> coord_1x;
 			cout << ", ";
@@ -97,7 +158,8 @@ int main()
 			cin >> coord_2x;
 			cout << ", ";
 			cin >> coord_2y;
-			if (CheckIfTurnisValid('x', coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray))
+			
+			if (CheckIfTurnisValid(PlayerO, coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray))
 			{
 				isOTurnValid = true;
 			}
@@ -130,7 +192,7 @@ void DisplayBoard (int board[Rows-2][Cols-2])
 			cout << (Rows - 1 - i) <<" ";
 			for (j = 0; j < Cols-2; j++)
 			{
-				cout << " " << board[i-1][j];
+				cout << " " << intConvert(board[i-1][j]);
 			}
 			cout << "  "<<(Rows - 1 - i) <<"\n";
 		}
@@ -138,46 +200,84 @@ void DisplayBoard (int board[Rows-2][Cols-2])
 	}
 }
 
-bool CheckIfTurnisValid(char player, char c_1x, int c_1y, char c_2x, int c_2y, int board [Rows-2][Cols-2])
+bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board [Rows-2][Cols-2])
 {
-	if ((player == 'x' || player == 'X') || (player == 'O' || player == 'o'))
+	if (player == 2 || player == 3)
 	{
-		//check for Bounds of board
-		if (c_1x - 'a' < 0 && c_1x - 'a' >= Rows-2)				
-			return false;
-		if (c_1y - 1 < 0 && c_1y - 1 >= Cols - 2)
-			return false;
-		if (c_2x - 'a' < 0 && c_2x - 'a' >= Rows - 2)
-			return false;
-		if (c_2y - 1 < 0 && c_2y - 1 >= Cols - 2)
-			return false;
-		
+
 		//check if the player is moving his/her own token
-		if ((player == 'x' || player == 'X'))
+		if (player == 2)
 		{
-			if (board[c_1x - 'a'][c_1y - 1] != charConvert('x'))
-				return false;
+			if (board[8 - (c_1y - 48)][c_1x - 97] != charConvert('x'))
+				return false;			
 		}
-		
-		if ((player == 'o' || player == 'O'))
+
+		if (player == 3)
 		{
-			if (board[c_1x - 'a'][c_1y - 1] != charConvert('o'))
-				return false;
+			if (board[8 - (c_1y - 48)][c_1x - 97] != charConvert('o'))
+			return false;			
 		}
 
 		//check if player is moving to an Empty block
-		if (board[c_2x - 'a'][c_2y - 1] != charConvert('.'))
+		if (board[8 - (c_2y - 48)][c_2x - 97] != charConvert('.'))
 		{
 			return false;
 		}
 
 
+		// make sure the vertical direction of the move is not illegal
+		if (player == PlayerX) 
+		{
+			//make sure he moves down
+			if (c_1x >= c_2x)
+			{
+				cout << "Player X must move down\n";
+				return false;
+			}
+		}
+		if (player == PlayerO)
+		{ 
+			// make sure player moves up
+			if (c_1x <= c_2y) 
+			{
+				cout << "Player O must move up\n";
+				return false;
+			}
+		}
 
-				
+		// check if it's a regular move
+		if (c_1x - c_2x == -1 || c_1x - c_2x == 1)
+		{
+			if (c_1y - c_2y == 1 || c_1y - c_2y == -1)
+			{
+				updateBoard(board, c_1x, c_1y, c_2x, c_2y);
+				return true;
+			}
+		}
+		else
+			cout << "\n Valid move !";
+
+
+
+
 	}
-	
 	else
+	{
+		cout << "end of func";
 		return false;			//If the player is not X and not O
+	}
+		
+}
+
+
+void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, int c_2y)
+{
+	int temp;
+	//printf("SWAP: %d,%d to %d,%d\n", i, j, k, l);
+
+	temp = board[8 - (c_1y - 48)][c_1x - 97];
+	board[8 - (c_1y - 48)][c_1x - 97] = board[8 - (c_2y - 48)][c_2x - 97];
+	board[8 - (c_2y - 48)][c_2x - 97] = temp;		
 }
 
 int charConvert(char charToConv)
@@ -190,5 +290,17 @@ int charConvert(char charToConv)
 		return 3;
 	if (charToConv == ' ')
 		return 0;
+}
+
+char intConvert(int intToConv)
+{
+	if (intToConv == 2)
+		return 'x';
+	if (intToConv == 1)
+		return '.';
+	if (intToConv == 3)
+		return 'o';
+	if (intToConv == 0)
+		return ' ';
 }
 
