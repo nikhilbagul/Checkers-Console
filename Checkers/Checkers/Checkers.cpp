@@ -28,7 +28,7 @@ int main()
 		{ 0,2,0,2,0,2,0,2 },
 		{ 2,0,2,0,2,0,2,0 },
 		{ 0,2,0,2,0,2,0,2 },
-		{ 1,0,1,0,1,0,1,0 },
+		{ 1,0,3,0,1,0,1,0 },
 		{ 0,1,0,1,0,1,0,1 },
 		{ 3,0,3,0,3,0,3,0 },
 		{ 0,3,0,3,0,3,0,3 },
@@ -54,12 +54,14 @@ int main()
 
 		while (!isXTurnValid)
 		{
-			int delimPos = 0;
-			string playerInp;
-			int numberOfValidChars = 0;
+			
 			
 			GOTOFLAG:
 			cout << "\n" << "player 'x' > ";
+
+			int delimPos = 0;
+			string playerInp;
+			int numberOfValidChars = 0;
 			getline(cin, playerInp);
 			char *playerInpCharacters = new char[playerInp.length()];
 
@@ -133,6 +135,7 @@ int main()
 					if (CheckIfTurnisValid(PlayerX, coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray))
 					{
 						isXTurnValid = true;
+						//cout << "\n Valid move !";
 					}
 					else
 					{
@@ -142,10 +145,12 @@ int main()
 			}			
 		}	
 
-		DisplayBoard(board_2Darray);
+		
 		//Disp board
 		//Check Win 
 		
+
+
 
 		while (!isOTurnValid) // re write for player 'o'
 		{
@@ -235,10 +240,11 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 				return false;
 			}
 		}
+
 		if (player == PlayerO)
 		{ 
 			// make sure player moves up
-			if (c_1x <= c_2y) 
+			if (c_1y <= c_2y) 
 			{
 				cout << "Player O must move up\n";
 				return false;
@@ -254,11 +260,53 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 				return true;
 			}
 		}
-		else
-			cout << "\n Valid move !";
 
 
+		//check if it's a jump move
+		int jumpR, jumpC;
+		if (c_1x - c_2x == -2 || c_1x - c_2x == 2) 
+		{
+			if (c_1y - c_2y == 2 || c_1y - c_2y == -2) 
+			{
+				// check if the jump position is enemy
+				if (c_1x < c_2x) 
+				{ // move down
+					jumpR = c_1x - 97 + 1;
+				}
+				else 
+				{ // move up
+					jumpR = c_1x - 97 - 1;
+				}
+				if (c_1y < c_2y) 
+				{ // move down
+					jumpC = 8 - (c_1y - 48) + 1;
+				}
+				else 
+				{ // move up
+					jumpC = 8 - (c_1y - 48) - 1;
+				}
 
+				//cout << board[jumpR+1][jumpC+1];
+
+
+				if (player == PlayerX && board[jumpR + 1][jumpC + 1] != PlayerO)
+				{
+					cout << "No enemy to jump over !";
+					return false;
+				}
+				if (player == PlayerO && board[jumpC][jumpR] != PlayerX)
+				{
+					cout << "No enemy to jump over !";
+					return false;
+				}
+
+				// we are sure the move is valid:
+				board[jumpR][jumpC] = 1;
+				updateBoard(board, c_1x, c_1y, c_2x, c_2y);
+				cout << "\n Valid move !";
+				return true;
+			}
+		}
 
 	}
 	else
@@ -269,7 +317,6 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 		
 }
 
-
 void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, int c_2y)
 {
 	int temp;
@@ -277,7 +324,8 @@ void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, in
 
 	temp = board[8 - (c_1y - 48)][c_1x - 97];
 	board[8 - (c_1y - 48)][c_1x - 97] = board[8 - (c_2y - 48)][c_2x - 97];
-	board[8 - (c_2y - 48)][c_2x - 97] = temp;		
+	board[8 - (c_2y - 48)][c_2x - 97] = temp;
+	DisplayBoard(board);
 }
 
 int charConvert(char charToConv)
