@@ -234,7 +234,7 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 		if (player == PlayerX) 
 		{
 			//make sure he moves down
-			if (c_1x >= c_2x)
+			if (c_1y <= c_2y)
 			{
 				cout << "Player X must move down\n";
 				return false;
@@ -244,7 +244,7 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 		if (player == PlayerO)
 		{ 
 			// make sure player moves up
-			if (c_1y <= c_2y) 
+			if (c_1y >= c_2y) 
 			{
 				cout << "Player O must move up\n";
 				return false;
@@ -279,17 +279,17 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 				}
 				if (c_1y < c_2y) 
 				{ // move down
-					jumpC = 8 - (c_1y - 48) + 1;
+					jumpC = (8 - (c_1y - 48)) - 1;
 				}
 				else 
 				{ // move up
-					jumpC = 8 - (c_1y - 48) - 1;
+					jumpC = (8 - (c_1y - 48)) + 1;
 				}
 
 				//cout << board[jumpR+1][jumpC+1];
 
 
-				if (player == PlayerX && board[jumpR + 1][jumpC + 1] != PlayerO)
+				if (player == PlayerX && board[jumpC][jumpR] != PlayerO)
 				{
 					cout << "No enemy to jump over !";
 					return false;
@@ -301,7 +301,7 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 				}
 
 				// we are sure the move is valid:
-				board[jumpR][jumpC] = 1;
+				board[jumpC][jumpR] = 1;
 				updateBoard(board, c_1x, c_1y, c_2x, c_2y);
 				cout << "\n Valid move !";
 				return true;
