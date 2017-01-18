@@ -14,9 +14,10 @@ int const Rows = 10;
 #define PlayerO 3
 #define Xking 4
 #define Yking 5
+int jumps=0;
 
 void DisplayBoard(int board[Rows-2][Cols-2]);
-bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board[Rows - 2][Cols - 2]);
+bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board[Rows - 2][Cols - 2], int numberOfValidInpChars);
 int charConvert(char charToConv);
 char intConvert(int intToConv);
 void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, int c_2y);
@@ -31,7 +32,7 @@ int main()
 		{ 1,0,3,0,1,0,1,0 },
 		{ 0,1,0,1,0,1,0,1 },
 		{ 3,0,3,0,3,0,3,0 },
-		{ 0,3,0,3,0,3,0,3 },
+		{ 0,1,0,3,0,3,0,3 },
 		{ 3,0,3,0,3,0,3,0 } 
 	};
 	
@@ -87,7 +88,9 @@ int main()
 						//cout << playerInpCharacters[validchars] << endl;
 						numberOfValidChars++;
 					}					
-				}				
+				}
+
+				//cout << numberOfValidChars;
 			}
 
 
@@ -97,7 +100,6 @@ int main()
 				goto GOTOFLAG;
 			}
 
-			
 			int coord_1x, coord_1y, coord_2x, coord_2y;
 			for (int i = 0; i < numberOfValidChars / 2; i = i+2)							//check for bounds of board
 			{
@@ -125,14 +127,14 @@ int main()
 					goto GOTOFLAG;
 				}
 				
-				else
+				else 
 				{
 					coord_1x = (int)playerInpCharacters[i];
 					coord_1y = (int)playerInpCharacters[i+1];
 					coord_2x = (int)playerInpCharacters[i+2];
 					coord_2y = (int)playerInpCharacters[i+3];
 
-					if (CheckIfTurnisValid(PlayerX, coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray))
+					if (CheckIfTurnisValid(PlayerX, coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray, numberOfValidChars))
 					{
 						isXTurnValid = true;
 						//cout << "\n Valid move !";
@@ -142,10 +144,11 @@ int main()
 						cout << "\n Invalid X move !";
 					}
 				}
-			}			
+			}
+			jumps = 0; //reset the number of Jumps
 		}	
 
-		
+		DisplayBoard(board_2Darray);
 		//Disp board
 		//Check Win 
 		
@@ -164,7 +167,7 @@ int main()
 			cout << ", ";
 			cin >> coord_2y;
 			
-			if (CheckIfTurnisValid(PlayerO, coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray))
+			if (CheckIfTurnisValid(PlayerO, coord_1x, coord_1y, coord_2x, coord_2y, board_2Darray, coord_1x))
 			{
 				isOTurnValid = true;
 			}
@@ -205,7 +208,7 @@ void DisplayBoard (int board[Rows-2][Cols-2])
 	}
 }
 
-bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board [Rows-2][Cols-2])
+bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board [Rows-2][Cols-2], int numberOfValidInpChars)
 {
 	if (player == 2 || player == 3)
 	{
@@ -261,6 +264,12 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 			}
 		}
 
+		//check if its a double jump move
+		bool isMultipleJumpTurn = false;		
+		if (numberOfValidInpChars > 4)
+		{
+			isMultipleJumpTurn = true;
+		}
 
 		//check if it's a jump move
 		int jumpR, jumpC;
@@ -300,11 +309,30 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 					return false;
 				}
 
-				// we are sure the move is valid:
+				// Hence, we are sure the move is valid
 				board[jumpC][jumpR] = 1;
-				updateBoard(board, c_1x, c_1y, c_2x, c_2y);
-				cout << "\n Valid move !";
-				return true;
+
+				if (isMultipleJumpTurn)
+				{
+					jumps++;
+					updateBoard(board, c_1x, c_1y, c_2x, c_2y);
+					if (jumps == 2)
+					{
+						//DisplayBoard(board);
+						cout << "\n Valid move !";						
+					}
+					
+					return true;
+				}
+				else
+				{
+					updateBoard(board, c_1x, c_1y, c_2x, c_2y);
+					//DisplayBoard(board);
+					cout << "\n Valid move !";
+					jumps++;
+					return true;
+				}
+				
 			}
 		}
 
@@ -324,8 +352,7 @@ void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, in
 
 	temp = board[8 - (c_1y - 48)][c_1x - 97];
 	board[8 - (c_1y - 48)][c_1x - 97] = board[8 - (c_2y - 48)][c_2x - 97];
-	board[8 - (c_2y - 48)][c_2x - 97] = temp;
-	DisplayBoard(board);
+	board[8 - (c_2y - 48)][c_2x - 97] = temp;	
 }
 
 int charConvert(char charToConv)
