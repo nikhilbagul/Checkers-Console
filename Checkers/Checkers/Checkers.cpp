@@ -180,11 +180,11 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 			coord_2x = (int)playerInpCharacters[i + 2];
 			coord_2y = (int)playerInpCharacters[i + 3];
 
-			if (CheckIfTurnisValid(player, coord_1x, coord_1y, coord_2x, coord_2y, board, numberOfValidChars))
+			if (CheckIfTurnisValid(player, coord_1x, coord_1y, coord_2x, coord_2y, bufferBoard, numberOfValidChars))
 			{
 				//isXTurnValid = true;
 				//cout << "\n Valid move !";
-				//continue;
+				continue;
 			}
 			else
 			{
@@ -332,20 +332,20 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 					return false;
 				}
 
-				// Hence, we are sure the move is valid
-				board[jumpC][jumpR] = 1;
-				
+				// Hence, we are sure the move is valid				
 				if (isMultipleJumpTurn)
 				{
+					board[jumpC][jumpR] = 1;
+
 					if (jumps >= 2)
 					{
-						updateBoard(bufferBoard, c_1x, c_1y, c_2x, c_2y);
+						updateBoard(board, c_1x, c_1y, c_2x, c_2y);
 						cout << "\n Valid Double Jump 2 move !\n\n";	
 						return true;
 					}	
 					else
 					{
-						updateBoard(bufferBoard, c_1x, c_1y, c_2x, c_2y);		//update board state to a temp array, in case third co-ordinate is invalid
+						updateBoard(board, c_1x, c_1y, c_2x, c_2y);		//update board state to a temp array, in case third co-ordinate is invalid
 						cout << "\nValid Double Jump 1 move !\n";
 						jumps = 1;
 						jumps++;
@@ -355,6 +355,7 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 
 				else
 				{
+					board[jumpC][jumpR] = 1;
 					updateBoard(board, c_1x, c_1y, c_2x, c_2y);
 					cout << "\n Valid Single Jump move !\n\n";
 					//jumps++;
