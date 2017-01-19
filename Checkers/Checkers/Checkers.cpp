@@ -33,7 +33,7 @@ int main()
 		{ 0,2,0,2,0,2,0,2 },
 		{ 1,0,3,0,1,0,1,0 },
 		{ 0,1,0,1,0,1,0,1 },
-		{ 3,0,3,0,3,0,3,0 },
+		{ 3,0,3,0,1,0,3,0 },
 		{ 0,1,0,3,0,3,0,3 },
 		{ 3,0,3,0,3,0,3,0 } 
 	};
@@ -49,6 +49,7 @@ int main()
 	bool quitGame = false;
 	bool isXTurnValid = false;
 	bool isOTurnValid = false;
+	bool isGameOver = false;
 	char choice;
 
 	cout << "Welcome to checkers !! \n\n";
@@ -60,66 +61,81 @@ int main()
 	{
 		DisplayBoard(board_2Darray);
 		cin.ignore();
-		//while (isGameOver)
-		
-		//Player X's turn
-		while (!isXTurnValid)		
-		{		
-			GOTOFLAGx:
-			cout << "\n" << "player 'x' > ";
-			if (InputCheck(PlayerX, board_2Darray))
-			{
-				isXTurnValid = true;
-			}
-			else
-			{
-				isXTurnValid = false;
-				goto GOTOFLAGx;
-			}
-		}	
-
-		DisplayBoard(board_2Darray);		//Display updated board
-		//Check Win
-
-		//Player O's turn
-		while (!isOTurnValid)
+		while (!isGameOver)
 		{
-		GOTOFLAGo:
-			cout << "\n" << "player 'o' > ";
-			if (InputCheck(PlayerO, board_2Darray))
+			//Player X's turn
+			while (!isXTurnValid)
 			{
-				isOTurnValid = true;
+				cout << "\n" << "player 'x' > ";
+				if (InputCheck(PlayerX, board_2Darray))
+				{
+					isXTurnValid = true;
+				}
+				else
+				{
+					//If wrong input, reset board to original/previous locked state
+					for (int i = 0; i < Rows - 2; i++)			
+					{
+						for (int j = 0; j < Cols - 2; j++)
+						{
+							board_2Darray[i][j] = bufferBoard[i][j];
+						}
+					}				
+				}
 			}
-			else
-			{
-				isOTurnValid = false;
-				goto GOTOFLAGo;
+			//Display updated board
+			DisplayBoard(board_2Darray);	
+			//Check Win condition
+
+			//Player O's turn
+			while (!isOTurnValid)
+			{			
+				cout << "\n" << "player 'o' > ";
+				if (InputCheck(PlayerO, board_2Darray))
+				{
+					isOTurnValid = true;
+				}
+				else
+				{
+					//If wrong input, reset board to original/previous locked state
+					for (int i = 0; i < Rows - 2; i++)			//reset board to original state
+					{
+						for (int j = 0; j < Cols - 2; j++)
+						{
+							board_2Darray[i][j] = bufferBoard[i][j];
+						}
+					}			
+				}
 			}
+			//Display updated board
+			DisplayBoard(board_2Darray);
+			isXTurnValid = false;
+			isOTurnValid = false;
+			//Check Win Condition
 		}
-		DisplayBoard(board_2Darray);		//Display updated board
-		//Check Win
+		
 	}
 	
 	system("PAUSE");
 	return 0;
-} // end of main
+} 
+// end of main
 
 bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 {
 	int delimPos = 0;
 	string playerInp;
 	int numberOfValidChars = 0;
-	getline(cin, playerInp);
+	getline(cin, playerInp);									// get string input of MOVE co-ordinates from user/players
 	char *playerInpCharacters = new char[playerInp.length()];
 
-	if (playerInp.length() == 5 || playerInp.length() == 8)
+	if (playerInp.length() == 5 || playerInp.length() == 8)		//check if the player has entered 2 or 3 MOVE cordinates 
 	{
-
 		strcpy(playerInpCharacters, playerInp.c_str());
 		//playerInp.copy(playerInpCharacters, playerInpArraysize);
 		for (int i = 0; i < playerInp.length(); i++)
 		{
-			if (i == 2 || i == 5)
+			if (i == 2 || i == 5)			//check for space on 3rd and 6th positions
 			{
 				if (!isspace(playerInpCharacters[i]))
 				{
@@ -130,8 +146,7 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 
 			else
 			{
-				playerInpCharacters[numberOfValidChars] = playerInpCharacters[i];
-				//cout << playerInpCharacters[validchars] << endl;
+				playerInpCharacters[numberOfValidChars] = playerInpCharacters[i];    //parse input string into a char[] array
 				numberOfValidChars++;
 			}
 		}
@@ -147,7 +162,7 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 	}
 
 	int coord_1x, coord_1y, coord_2x, coord_2y;
-	for (int i = 0; i < numberOfValidChars / 2; i = i + 2)							//check for bounds of board
+	for (int i = 0; i < numberOfValidChars / 2; i = i + 2)										//check the input against bounds of the board a-h, 8-1
 	{
 		if ((int)playerInpCharacters[i] < 97 || (int)playerInpCharacters[i] > 104)
 		{
@@ -155,7 +170,7 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 			return false;
 		}
 
-		if ((int)playerInpCharacters[i + 1] < 48 || (int)playerInpCharacters[i + 1] > 57)
+		if ((int)playerInpCharacters[i + 1] < 49 || (int)playerInpCharacters[i + 1] > 56)
 		{
 			cout << "\nInvalid Input2 !";
 			return false;
@@ -167,7 +182,7 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 			return false;
 		}
 
-		if ((int)playerInpCharacters[i + 3] < 48 || (int)playerInpCharacters[i + 3] > 57)
+		if ((int)playerInpCharacters[i + 3] < 49 || (int)playerInpCharacters[i + 3] > 56)
 		{
 			cout << "\nInvalid Input4 !";
 			return false;
@@ -180,28 +195,20 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 			coord_2x = (int)playerInpCharacters[i + 2];
 			coord_2y = (int)playerInpCharacters[i + 3];
 
-			if (CheckIfTurnisValid(player, coord_1x, coord_1y, coord_2x, coord_2y, bufferBoard, numberOfValidChars))
+			if (CheckIfTurnisValid(player, coord_1x, coord_1y, coord_2x, coord_2y, board, numberOfValidChars))
 			{
-				//isXTurnValid = true;
 				//cout << "\n Valid move !";
 				continue;
 			}
 			else
 			{
-				cout << "\n Invalid "<<intConvert(player)<<" move !";
-
-				for (int i = 0; i < Rows - 2; i++)			//reset buffer board to original board state
-				{
-					for (int j = 0; j < Cols - 2; j++)
-					{
-						bufferBoard[i][j] = board[i][j];
-					}
-				}
+				cout << "\nInvalid "<<intConvert(player)<<" MOVE !";
+				jumps = 0; //reset the number of Jumps
 				return false;
 			}
 		}
 	}
-	jumps = 0; //reset the number of Jumps
+	
 	return true;
 }
 
@@ -231,7 +238,7 @@ void DisplayBoard (int board[Rows-2][Cols-2])
 	}
 }
 
-bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board [Rows-2][Cols-2], int numberOfValidInpChars)
+bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int boardArray [Rows-2][Cols-2], int numberOfValidInpChars)
 {
 	if (player == 2 || player == 3)
 	{
@@ -239,60 +246,76 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 		//check if the player is moving his/her own token
 		if (player == 2)
 		{
-			if (board[8 - (c_1y - 48)][c_1x - 97] != charConvert('x'))
+			if (boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('x'))
 				return false;			
 		}
 
 		if (player == 3)
 		{
-			if (board[8 - (c_1y - 48)][c_1x - 97] != charConvert('o'))
+			if (boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('o'))
 			return false;			
 		}
 
 		//check if player is moving to an Empty block
-		if (board[8 - (c_2y - 48)][c_2x - 97] != charConvert('.'))
+		if (boardArray[8 - (c_2y - 48)][c_2x - 97] != charConvert('.'))
 		{
 			return false;
 		}
 
+		cout << numberOfValidInpChars;
+		//check if its a double jump move
+		bool isMultipleJumpTurn = false;
+		if (numberOfValidInpChars > 4)
+		{
+			if ((c_1x - c_2x == -2 || c_1x - c_2x == 2))			//single jump always has to be diagonal
+			{
+				if (c_1y - c_2y == 2 || c_1y - c_2y == -2)
+					isMultipleJumpTurn = true;
+				else
+					return false;
+			}
+			else
+				return false;
+		}
 
 		// make sure the vertical direction of the move is not illegal
-		if (player == PlayerX) 
+		if (player == PlayerX)
 		{
 			//make sure he moves down
 			if (c_1y <= c_2y)
 			{
-				cout << "Player X must move down\n";
+				cout << "Player X must MOVE down\n";
 				return false;
+			}	
+			if (c_1x == c_2x)
+			{
+				cout << "Player X must MOVE diagonally !\n";
 			}
 		}
 
 		if (player == PlayerO)
-		{ 
+		{
 			// make sure player moves up
-			if (c_1y >= c_2y) 
+			if (c_1y >= c_2y)
 			{
-				cout << "Player O must move up\n";
+				cout << "Player O must MOVE up\n";
 				return false;
+			}
+			if (c_1x == c_2x)
+			{
+				cout << "Player O must MOVE diagonally !\n";
 			}
 		}
 
 		// check if it's a regular move
-		if (c_1x - c_2x == -1 || c_1x - c_2x == 1)
+		if ((c_1x - c_2x == -1 || c_1x - c_2x == 1))
 		{
-			if (c_1y - c_2y == 1 || c_1y - c_2y == -1)
+			if (c_1y - c_2y == -1 || c_1y - c_2y == 1)
 			{
-				updateBoard(board, c_1x, c_1y, c_2x, c_2y);
+				updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);
 				return true;
 			}
-		}
-
-		//check if its a double jump move
-		bool isMultipleJumpTurn = false;		
-		if (numberOfValidInpChars > 4)
-		{
-			isMultipleJumpTurn = true;
-		}
+		}		
 
 		//check if it's a jump move
 		int jumpR, jumpC;
@@ -302,51 +325,60 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 			{
 				// check if the jump position is enemy
 				if (c_1x < c_2x) 
-				{ // move down
-					jumpR = c_1x - 97 + 1;
+				{ // move to right
+					jumpC = (c_1x - 97)+1;
 				}
 				else 
-				{ // move up
-					jumpR = c_1x - 97 - 1;
+				{ // move to left
+					jumpC = (c_1x - 97)-1;
 				}
 				if (c_1y < c_2y) 
-				{ // move down
-					jumpC = (8 - (c_1y - 48)) - 1;
+				{ // move up 
+					jumpR = (8 - (c_1y - 48))-1;
 				}
 				else 
-				{ // move up
-					jumpC = (8 - (c_1y - 48)) + 1;
+				{ // move down
+					jumpR = (8 - (c_1y - 48))+1;
 				}
 
 				//cout << board[jumpR+1][jumpC+1];
 
-
-				if (player == PlayerX && board[jumpC][jumpR] != PlayerO)
+				
+				if (player == PlayerX && boardArray[jumpR][jumpC] != PlayerO)
 				{
 					cout << "No enemy to jump over !";
 					return false;
 				}
-				if (player == PlayerO && board[jumpC][jumpR] != PlayerX)
+				if (player == PlayerO && boardArray[jumpR][jumpC] != PlayerX)
 				{
 					cout << "No enemy to jump over !";
 					return false;
 				}
 
-				// Hence, we are sure the move is valid				
+				// Hence, we are sure the move is valid		
+
 				if (isMultipleJumpTurn)
 				{
-					board[jumpC][jumpR] = 1;
+					boardArray[jumpC][jumpR] = 1;	//make the enemy position jumped to be an EMPTY(.) space
 
 					if (jumps >= 2)
 					{
-						updateBoard(board, c_1x, c_1y, c_2x, c_2y);
-						cout << "\n Valid Double Jump 2 move !\n\n";	
+						updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);
+						//memcpy(bufferBoard, boardArray, sizeof(boardArray));		//copy final CORRECT result into buffer array
+						for (int i = 0; i < Rows - 2; i++)							//copy final CORRECT result into buffer array
+						{
+							for (int j = 0; j < Cols - 2; j++)
+							{
+								bufferBoard[i][j] = boardArray[i][j];
+							}
+						}
+						cout << "\nValid Double Jump 2 MOVE !\n\n";	
 						return true;
 					}	
 					else
 					{
-						updateBoard(board, c_1x, c_1y, c_2x, c_2y);		//update board state to a temp array, in case third co-ordinate is invalid
-						cout << "\nValid Double Jump 1 move !\n";
+						updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);		
+						cout << "\nValid Double Jump 1 MOVE !\n";
 						jumps = 1;
 						jumps++;
 						return true;
@@ -355,10 +387,17 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 
 				else
 				{
-					board[jumpC][jumpR] = 1;
-					updateBoard(board, c_1x, c_1y, c_2x, c_2y);
+					boardArray[jumpC][jumpR] = 1;					//make the enemy position jumped to be an EMPTY(.) space
+					updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);
+					for (int i = 0; i < Rows - 2; i++)				//copy final CORRECT result into buffer array
+					{
+						for (int j = 0; j < Cols - 2; j++)
+						{
+							bufferBoard[i][j] = boardArray[i][j];
+						}
+					}
+
 					cout << "\n Valid Single Jump move !\n\n";
-					//jumps++;
 					return true;
 				}
 				
@@ -378,8 +417,6 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, int c_2y)
 {
 	int temp;
-	//printf("SWAP: %d,%d to %d,%d\n", i, j, k, l);
-
 	temp = board[8 - (c_1y - 48)][c_1x - 97];
 	board[8 - (c_1y - 48)][c_1x - 97] = board[8 - (c_2y - 48)][c_2x - 97];
 	board[8 - (c_2y - 48)][c_2x - 97] = temp;	
