@@ -23,19 +23,20 @@ int charConvert(char charToConv);
 char intConvert(int intToConv);
 void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, int c_2y);
 bool InputCheck(int player, int board[Rows - 2][Cols - 2]);
+bool checkWin(int player, int board[Rows - 2][Cols - 2]);
 
 int main()
 {
 	int board_2Darray[Rows-2][Cols-2] = 
 	{
-		{ 0,2,0,2,0,2,0,2 },
-		{ 2,0,2,0,2,0,2,0 },
-		{ 0,2,0,2,0,2,0,2 },
-		{ 1,0,3,0,1,0,1,0 },
 		{ 0,1,0,1,0,1,0,1 },
-		{ 3,0,3,0,1,0,3,0 },
-		{ 0,1,0,3,0,3,0,3 },
-		{ 3,0,3,0,3,0,3,0 } 
+		{ 1,0,1,0,1,0,1,0 },
+		{ 0,1,0,1,0,1,0,1 },
+		{ 1,0,2,0,1,0,1,0 },
+		{ 0,3,0,3,0,3,0,1 },
+		{ 1,0,1,0,1,0,1,0 },
+		{ 0,3,0,1,0,1,0,1 },
+		{ 1,0,1,0,3,0,1,0 } 
 	};
 
 	for (int i = 0; i < Rows - 2; i++)
@@ -56,6 +57,7 @@ int main()
 	cout << "Hit P to play: ";
 	cin >> choice;
 	cin.ignore();
+	cout << "\n";
 
 	if ((choice == 'p' || choice == 'P'))
 	{
@@ -64,7 +66,7 @@ int main()
 		while (!isGameOver)
 		{
 			//Player X's turn
-			while (!isXTurnValid)
+			while (!isXTurnValid && !isGameOver)
 			{
 				cout << "\n" << "player 'x' > ";
 				if (InputCheck(PlayerX, board_2Darray))
@@ -86,9 +88,14 @@ int main()
 			//Display updated board
 			DisplayBoard(board_2Darray);	
 			//Check Win condition
+			if(checkWin(PlayerO, board_2Darray))
+			{
+				isGameOver = true;
+				continue;
+			}		
 
 			//Player O's turn
-			while (!isOTurnValid)
+			while (!isOTurnValid && !isGameOver)
 			{			
 				cout << "\n" << "player 'o' > ";
 				if (InputCheck(PlayerO, board_2Darray))
@@ -112,6 +119,11 @@ int main()
 			isXTurnValid = false;
 			isOTurnValid = false;
 			//Check Win Condition
+			if (checkWin(PlayerX, board_2Darray))
+			{
+				isGameOver = true;
+				continue;
+			}
 		}
 		
 	}
@@ -221,9 +233,9 @@ void DisplayBoard (int board[Rows-2][Cols-2])
 		if (i == 0 || i == Cols-1)
 		{
 			if(i==0)
-				cout << "   a b c d e f g h \n\n";
+				cout << "   a b c d e f g h \n";
 			else
-				cout << "\n   a b c d e f g h \n\n";
+				cout << "   a b c d e f g h \n\n";
 		}
 		else
 		{
@@ -313,6 +325,13 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 			if (c_1y - c_2y == -1 || c_1y - c_2y == 1)
 			{
 				updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);
+				for (int i = 0; i < Rows - 2; i++)							//copy final CORRECT result into buffer array
+				{
+					for (int j = 0; j < Cols - 2; j++)
+					{
+						bufferBoard[i][j] = boardArray[i][j];
+					}
+				}
 				return true;
 			}
 		}		
@@ -359,7 +378,7 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 
 				if (isMultipleJumpTurn)
 				{
-					boardArray[jumpC][jumpR] = 1;	//make the enemy position jumped to be an EMPTY(.) space
+					boardArray[jumpR][jumpC] = 1;	//make the enemy position jumped to be an EMPTY(.) space
 
 					if (jumps >= 2)
 					{
@@ -387,7 +406,7 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 
 				else
 				{
-					boardArray[jumpC][jumpR] = 1;					//make the enemy position jumped to be an EMPTY(.) space
+					boardArray[jumpR][jumpC] = 1;					//make the enemy position jumped to be an EMPTY(.) space
 					updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);
 					for (int i = 0; i < Rows - 2; i++)				//copy final CORRECT result into buffer array
 					{
@@ -444,5 +463,28 @@ char intConvert(int intToConv)
 		return 'o';
 	if (intToConv == 0)
 		return ' ';
+}
+
+bool checkWin(int player, int board[Rows - 2][Cols - 2])
+{
+	int count = 0;
+	for (int i = 0; i < Rows - 2; i++)
+	{
+		for (int j = 0; j < Cols - 2; j++)
+		{
+			if (board[i][j] == player)
+			{
+				count++;
+			}			
+		}
+	}
+
+	if (count == 0)
+	{
+		cout << "\nPlayer " << intConvert(player) << " GAME OVER !!\n";
+		return true;
+	}
+	else
+		return false;
 }
 
