@@ -47,10 +47,10 @@ int main()
 		{ 0,1,0,1,0,1,0,1 },
 		{ 1,0,2,0,2,0,1,0 },
 		{ 0,1,0,1,0,1,0,1 },
-		{ 2,0,2,0,2,0,2,0 },
-		{ 0,3,0,3,0,2,0,1 },
-		{ 1,0,1,0,2,0,1,0 },
-		{ 0,3,0,3,0,1,0,1 },
+		{ 2,0,2,0,4,0,2,0 },
+		{ 0,2,0,2,0,2,0,1 },
+		{ 1,0,2,0,2,0,1,0 },
+		{ 0,1,0,5,0,1,0,1 },
 		{ 1,0,1,0,1,0,1,0 }
 	};
 	
@@ -85,7 +85,7 @@ int main()
 			while (!isXTurnValid && !isGameOver)
 			{
 				cout << "\n" << "player 'x' > ";
-				if (InputCheck(PlayerX, board_2Darray))
+				if (InputCheck(PlayerX,board_2Darray))
 				{
 					isXTurnValid = true;
 				}
@@ -185,7 +185,7 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 
 	else
 	{
-		cout << "\nInvalid Input !  PLease enter the co-ordinates in the correct format !";
+		cout << "\nInvalid Input ! Please enter the co-ordinates in the correct format !";
 		return false;
 	}
 
@@ -274,13 +274,13 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 		//check if the player is moving his/her own token
 		if (player == 2)
 		{
-			if (boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('x'))
+			if ((boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('x')) && (boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('X')))
 				return false;			
 		}
 
 		if (player == 3)
 		{
-			if (boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('o'))
+			if ((boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('o')) && (boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('O')))
 			return false;			
 		}
 
@@ -308,12 +308,16 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 		// make sure the vertical direction of the move is not illegal
 		if (player == PlayerX)
 		{
-			//make sure he moves down
-			if (c_1y <= c_2y)
+			if (boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('X'))
 			{
-				cout << "Player X must MOVE down\n";
-				return false;
-			}	
+				//make sure he moves down if its is not XKING
+				if (c_1y <= c_2y)
+				{
+					cout << "Player X must MOVE down\n";
+					return false;
+				}
+			}
+			
 			if (c_1x == c_2x)
 			{
 				cout << "Player X must MOVE diagonally !\n";
@@ -322,12 +326,16 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 
 		if (player == PlayerO)
 		{
-			// make sure player moves up
-			if (c_1y >= c_2y)
+			if (boardArray[8 - (c_1y - 48)][c_1x - 97] != charConvert('O'))
 			{
-				cout << "Player O must MOVE up\n";
-				return false;
-			}
+				// make sure player moves up
+				if (c_1y >= c_2y)
+				{
+					cout << "Player O must MOVE up\n";
+					return false;
+				}
+			}			
+			
 			if (c_1x == c_2x)
 			{
 				cout << "Player O must MOVE diagonally !\n";
@@ -511,7 +519,6 @@ void checkKingConditions(int player, int board[Rows - 2][Cols - 2], int destRowC
 	}
 }
 
-
 bool checkWin(int player, int board[Rows - 2][Cols - 2])
 {
 	int count = 0, cannotMove = 0;
@@ -519,7 +526,7 @@ bool checkWin(int player, int board[Rows - 2][Cols - 2])
 	{
 		for (int j = 0; j < Cols - 2; j++)
 		{
-			if (board[i][j] == player)
+			if (board[i][j] == player || board[i][j] == (player+2))
 			{
 				count++;
 				if (player == PlayerX)
@@ -538,6 +545,8 @@ bool checkWin(int player, int board[Rows - 2][Cols - 2])
 					}					
 				}
 
+				//add Xking loss check
+
 				if (player == PlayerO)
 				{
 					if ((board[i - 1][j - 1] != charConvert('.')) && (board[i - 1][j + 1] != charConvert('.')))		//check for blank spaces
@@ -552,8 +561,9 @@ bool checkWin(int player, int board[Rows - 2][Cols - 2])
 						else
 							cannotMove++;
 					}
-				}
-				
+				}		
+
+				//add Oking loss check
 			}			
 		}
 	}
