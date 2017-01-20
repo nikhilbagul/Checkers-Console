@@ -27,17 +27,32 @@ bool checkWin(int player, int board[Rows - 2][Cols - 2]);
 
 int main()
 {
+	
 	int board_2Darray[Rows-2][Cols-2] = 
 	{
-		{ 0,1,0,1,0,1,0,1 },
+		{ 0,2,0,2,0,2,0,2 },
+		{ 2,0,2,0,2,0,2,0 },
+		{ 0,2,0,2,0,2,0,2 },
 		{ 1,0,1,0,1,0,1,0 },
 		{ 0,1,0,1,0,1,0,1 },
-		{ 1,0,2,0,1,0,1,0 },
-		{ 0,3,0,3,0,3,0,1 },
-		{ 1,0,1,0,1,0,1,0 },
-		{ 0,3,0,1,0,1,0,1 },
-		{ 1,0,1,0,3,0,1,0 } 
+		{ 3,0,3,0,3,0,3,0 },
+		{ 0,3,0,3,0,3,0,3 },
+		{ 3,0,3,0,3,0,3,0 }
 	};
+
+	/*
+	int board_2Darray[Rows - 2][Cols - 2] =
+	{
+		{ 0,2,0,1,0,1,0,1 },
+		{ 1,0,1,0,1,0,1,0 },
+		{ 0,1,0,2,0,1,0,1 },
+		{ 2,0,2,0,2,0,2,0 },
+		{ 0,2,0,2,0,2,0,1 },
+		{ 1,0,2,0,2,0,1,0 },
+		{ 0,1,0,3,0,1,0,1 },
+		{ 1,0,1,0,1,0,1,0 }
+	};
+	*/
 
 	for (int i = 0; i < Rows - 2; i++)
 	{
@@ -274,7 +289,6 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 			return false;
 		}
 
-		cout << numberOfValidInpChars;
 		//check if its a double jump move
 		bool isMultipleJumpTurn = false;
 		if (numberOfValidInpChars > 4)
@@ -467,7 +481,7 @@ char intConvert(int intToConv)
 
 bool checkWin(int player, int board[Rows - 2][Cols - 2])
 {
-	int count = 0;
+	int count = 0, cannotMove = 0;
 	for (int i = 0; i < Rows - 2; i++)
 	{
 		for (int j = 0; j < Cols - 2; j++)
@@ -475,6 +489,38 @@ bool checkWin(int player, int board[Rows - 2][Cols - 2])
 			if (board[i][j] == player)
 			{
 				count++;
+				if (player == PlayerX)
+				{
+					if ((board[i + 1][j - 1] != charConvert('.')) && (board[i + 1][j + 1] != charConvert('.')))		//check for blank spaces
+					{
+						if ((board[i + 1][j - 1] == charConvert('o')) || (board[i + 1][j + 1] == charConvert('o'))) //check for enemy tokens
+						{
+							if ((board[i + 2][j - 2] != charConvert('.')) && (board[i + 2][j + 2] != charConvert('.'))) //check for blank Jump space
+							{
+								cannotMove++;
+							}
+						}
+						else
+							cannotMove++;
+					}					
+				}
+
+				if (player == PlayerO)
+				{
+					if ((board[i - 1][j - 1] != charConvert('.')) && (board[i - 1][j + 1] != charConvert('.')))		//check for blank spaces
+					{
+						if ((board[i - 1][j - 1] == charConvert('x')) || (board[i - 1][j + 1] == charConvert('x'))) //check for enemy tokens
+						{
+							if ((board[i - 2][j - 2] != charConvert('.')) && (board[i - 2][j + 2] != charConvert('.'))) //check for blank Jump space
+							{
+								cannotMove++;
+							}
+						}
+						else
+							cannotMove++;
+					}
+				}
+				
 			}			
 		}
 	}
@@ -484,7 +530,13 @@ bool checkWin(int player, int board[Rows - 2][Cols - 2])
 		cout << "\nPlayer " << intConvert(player) << " GAME OVER !!\n";
 		return true;
 	}
+	if(cannotMove == count)
+	{
+		cout << "\nPlayer " << intConvert(player) << " GAME OVER !! No more moves left !\n";
+		return true;
+	}
 	else
-		return false;
+		return false; // subject to change 
+
 }
 
