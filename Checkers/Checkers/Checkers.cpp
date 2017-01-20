@@ -1,21 +1,11 @@
-// Checkers.cpp : Defines the entry point for the console application.
-//
+// Checkers.cpp : The console application game
+// Made by Nikhil Bagul
 
 #include "stdafx.h"
 #include <iostream>
 #include <string>
 #include <sstream>
 using namespace std;
-
-int const Cols = 10;
-int const Rows = 10;
-#define EMPTY 1
-#define PlayerX 2
-#define PlayerO 3
-#define Xking 4
-#define Oking 5
-int jumps=0;
-int bufferBoard[Rows - 2][Cols - 2];
 
 void DisplayBoard(int board[Rows-2][Cols-2]);
 bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board[Rows - 2][Cols - 2], int numberOfValidInpChars);
@@ -26,9 +16,19 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2]);
 void checkKingConditions(int player, int board[Rows - 2][Cols - 2], int destRowCordinate, int sourceColCordinate, int sourceRowCordinate);
 bool checkWin(int player, int board[Rows - 2][Cols - 2]);
 
+int const Cols = 10;
+int const Rows = 10;
+#define Empty 1
+#define PlayerX 2
+#define PlayerO 3
+#define Xking 4
+#define Oking 5
+int jumps = 0;
+int bufferBoard[Rows - 2][Cols - 2];
+
 int main()
 {
-	/*
+	
 	int board_2Darray[Rows-2][Cols-2] = 
 	{
 		{ 0,2,0,2,0,2,0,2 },
@@ -40,8 +40,8 @@ int main()
 		{ 0,3,0,3,0,3,0,3 },
 		{ 3,0,3,0,3,0,3,0 }
 	};
-	*/
 	
+	/*
 	int board_2Darray[Rows - 2][Cols - 2] =
 	{
 		{ 0,1,0,1,0,1,0,1 },
@@ -50,10 +50,10 @@ int main()
 		{ 2,0,2,0,4,0,2,0 },
 		{ 0,2,0,2,0,2,0,1 },
 		{ 1,0,2,0,2,0,1,0 },
-		{ 0,1,0,5,0,1,0,1 },
+		{ 0,3,0,5,0,1,0,1 },
 		{ 1,0,1,0,1,0,1,0 }
 	};
-	
+	*/
 
 	for (int i = 0; i < Rows - 2; i++)
 	{
@@ -72,7 +72,7 @@ int main()
 	cout << "Welcome to checkers !! \n\n";
 	cout << "Hit P to play: ";
 	cin >> choice;
-	cin.ignore();
+	//cin.ignore();
 	cout << "\n";
 
 	if ((choice == 'p' || choice == 'P'))
@@ -140,6 +140,8 @@ int main()
 				isGameOver = true;
 				continue;
 			}
+
+			cout << "\n---------------------------------end of turn-------------------------------------";
 		}
 		
 	}
@@ -243,7 +245,7 @@ bool InputCheck(int player, int board[Rows - 2][Cols - 2])
 void DisplayBoard (int board[Rows-2][Cols-2])
 {
 	int i, j;
-
+	cout << "\n";
 	for (i = 0; i < Rows; i++)
 	{
 		if (i == 0 || i == Cols-1)
@@ -251,7 +253,7 @@ void DisplayBoard (int board[Rows-2][Cols-2])
 			if(i==0)
 				cout << "   a b c d e f g h \n";
 			else
-				cout << "   a b c d e f g h \n\n";
+				cout << "   a b c d e f g h \n";
 		}
 		else
 		{
@@ -387,12 +389,12 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 				//cout << board[jumpR+1][jumpC+1];
 
 				
-				if (player == PlayerX && boardArray[jumpR][jumpC] != PlayerO)
+				if (player == PlayerX && (boardArray[jumpR][jumpC] != PlayerO) && (boardArray[jumpR][jumpC] != Oking))
 				{
 					cout << "No enemy to jump over !";
 					return false;
 				}
-				if (player == PlayerO && boardArray[jumpR][jumpC] != PlayerX)
+				if (player == PlayerO && boardArray[jumpR][jumpC] != PlayerX && (boardArray[jumpR][jumpC] != Xking))
 				{
 					cout << "No enemy to jump over !";
 					return false;
@@ -416,14 +418,14 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 								bufferBoard[i][j] = boardArray[i][j];
 							}
 						}
-						cout << "\nValid Double Jump 2 MOVE !\n\n";	
+						cout << "\nValid Double Jump - MOVE 2!\n\n";	
 						return true;
 					}	
 					else
 					{
 						checkKingConditions(player, boardArray, c_2y, c_1x, c_1y);	//check for King conditions and update the board
 						updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);			//update the board with final movements	
-						cout << "\nValid Double Jump 1 MOVE !\n";
+						cout << "\nValid Double Jump - MOVE 1!\n";
 						jumps = 1;
 						jumps++;
 						return true;
@@ -443,7 +445,7 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 						}
 					}
 
-					cout << "\n Valid Single Jump move !\n\n";
+					cout << "\nValid Single Jump move !\n\n";
 					return true;
 				}
 				
@@ -529,53 +531,99 @@ bool checkWin(int player, int board[Rows - 2][Cols - 2])
 			if (board[i][j] == player || board[i][j] == (player+2))
 			{
 				count++;
+				//x player loss check
 				if (player == PlayerX)
 				{
-					if ((board[i + 1][j - 1] != charConvert('.')) && (board[i + 1][j + 1] != charConvert('.')))		//check for blank spaces
+					if ((board[i + 1][j - 1] != charConvert('.')) && (board[i + 1][j + 1] != charConvert('.')))			//check for blank spaces
 					{
-						if ((board[i + 1][j - 1] == charConvert('o')) || (board[i + 1][j + 1] == charConvert('o'))) //check for enemy tokens
+						if ((board[i + 1][j - 1] == charConvert('o')) || (board[i + 1][j + 1] == charConvert('o')))		//check for enemy tokens
 						{
 							if ((board[i + 2][j - 2] != charConvert('.')) && (board[i + 2][j + 2] != charConvert('.'))) //check for blank Jump space
 							{
-								cannotMove++;
+								if (board[i][j] != Xking)
+									cannotMove++;
 							}
 						}
 						else
-							cannotMove++;
-					}					
+						{
+							if (board[i][j] != Xking)
+								cannotMove++;
+						}
+					}
+
+					//Xking loss check - upwards move
+					if (board[i][j] == Xking)
+					{
+						if ((board[i - 1][j - 1] != charConvert('.')) && (board[i - 1][j + 1] != charConvert('.')))			//check for blank spaces
+						{
+							if ((board[i - 1][j - 1] == charConvert('o')) || (board[i - 1][j + 1] == charConvert('o')))		//check for enemy tokens
+							{
+								if ((board[i - 2][j - 2] != charConvert('.')) && (board[i - 2][j + 2] != charConvert('.'))) //check for blank Jump space
+								{
+									cannotMove++;
+								}
+							}
+							else
+									cannotMove++;
+						}
+					}
 				}
+				
 
-				//add Xking loss check
-
+				//o player loss check
 				if (player == PlayerO)
 				{
-					if ((board[i - 1][j - 1] != charConvert('.')) && (board[i - 1][j + 1] != charConvert('.')))		//check for blank spaces
+					if ((board[i - 1][j - 1] != charConvert('.')) && (board[i - 1][j + 1] != charConvert('.')))			//check for blank spaces
 					{
-						if ((board[i - 1][j - 1] == charConvert('x')) || (board[i - 1][j + 1] == charConvert('x'))) //check for enemy tokens
+						if ((board[i - 1][j - 1] == charConvert('x')) || (board[i - 1][j + 1] == charConvert('x')))		//check for enemy tokens
 						{
 							if ((board[i - 2][j - 2] != charConvert('.')) && (board[i - 2][j + 2] != charConvert('.'))) //check for blank Jump space
+							{
+								if (board[i][j] != Oking)
+									cannotMove++;
+							}
+						}
+						else
+						{
+							if (board[i][j] != Oking)
+								cannotMove++;
+						}
+					}
+
+					//Oking loss check - downwards move
+					if (board[i][j] == Oking)
+					{
+						if ((board[i + 1][j - 1] != charConvert('.')) && (board[i + 1][j + 1] != charConvert('.')))			//check for blank spaces
+						{
+							if ((board[i + 1][j - 1] == charConvert('x')) || (board[i + 1][j + 1] == charConvert('x')))		//check for enemy tokens
+							{
+								if ((board[i + 2][j - 2] != charConvert('.')) && (board[i + 2][j + 2] != charConvert('.'))) //check for blank Jump space
+								{
+									cannotMove++;
+								}
+							}
+							else
 							{
 								cannotMove++;
 							}
 						}
-						else
-							cannotMove++;
 					}
+
 				}		
 
-				//add Oking loss check
+				
 			}			
 		}
 	}
 
 	if (count == 0)
 	{
-		cout << "\nPlayer " << intConvert(player) << " GAME OVER !!\n";
+		cout << "\nPlayer--" << intConvert(player) << " GAME OVER !!\n";
 		return true;
 	}
 	if(cannotMove == count)
 	{
-		cout << "\nPlayer " << intConvert(player) << " GAME OVER !! No more moves left !\n";
+		cout << "\nPlayer -- " << intConvert(player) << " GAME OVER :( No more moves left !!\n";
 		return true;
 	}
 	else
