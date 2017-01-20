@@ -13,7 +13,7 @@ int const Rows = 10;
 #define PlayerX 2
 #define PlayerO 3
 #define Xking 4
-#define Yking 5
+#define Oking 5
 int jumps=0;
 int bufferBoard[Rows - 2][Cols - 2];
 
@@ -23,11 +23,12 @@ int charConvert(char charToConv);
 char intConvert(int intToConv);
 void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, int c_2y);
 bool InputCheck(int player, int board[Rows - 2][Cols - 2]);
+void checkKingConditions(int player, int board[Rows - 2][Cols - 2], int destRowCordinate, int sourceColCordinate, int sourceRowCordinate);
 bool checkWin(int player, int board[Rows - 2][Cols - 2]);
 
 int main()
 {
-	
+	/*
 	int board_2Darray[Rows-2][Cols-2] = 
 	{
 		{ 0,2,0,2,0,2,0,2 },
@@ -39,20 +40,20 @@ int main()
 		{ 0,3,0,3,0,3,0,3 },
 		{ 3,0,3,0,3,0,3,0 }
 	};
-
-	/*
+	*/
+	
 	int board_2Darray[Rows - 2][Cols - 2] =
 	{
-		{ 0,2,0,1,0,1,0,1 },
-		{ 1,0,1,0,1,0,1,0 },
-		{ 0,1,0,2,0,1,0,1 },
-		{ 2,0,2,0,2,0,2,0 },
-		{ 0,2,0,2,0,2,0,1 },
+		{ 0,1,0,1,0,1,0,1 },
 		{ 1,0,2,0,2,0,1,0 },
-		{ 0,1,0,3,0,1,0,1 },
+		{ 0,1,0,1,0,1,0,1 },
+		{ 2,0,2,0,2,0,2,0 },
+		{ 0,3,0,3,0,2,0,1 },
+		{ 1,0,1,0,2,0,1,0 },
+		{ 0,3,0,3,0,1,0,1 },
 		{ 1,0,1,0,1,0,1,0 }
 	};
-	*/
+	
 
 	for (int i = 0; i < Rows - 2; i++)
 	{
@@ -338,7 +339,8 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 		{
 			if (c_1y - c_2y == -1 || c_1y - c_2y == 1)
 			{
-				updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);
+				checkKingConditions(player, boardArray, c_2y, c_1x, c_1y);	//check for King conditions and update the board
+				updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);			//update the board with final movements
 				for (int i = 0; i < Rows - 2; i++)							//copy final CORRECT result into buffer array
 				{
 					for (int j = 0; j < Cols - 2; j++)
@@ -396,7 +398,8 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 
 					if (jumps >= 2)
 					{
-						updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);
+						checkKingConditions(player, boardArray, c_2y, c_1x, c_1y);	//check for King conditions and update the board
+						updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);			//update the board with final movements
 						//memcpy(bufferBoard, boardArray, sizeof(boardArray));		//copy final CORRECT result into buffer array
 						for (int i = 0; i < Rows - 2; i++)							//copy final CORRECT result into buffer array
 						{
@@ -410,7 +413,8 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 					}	
 					else
 					{
-						updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);		
+						checkKingConditions(player, boardArray, c_2y, c_1x, c_1y);	//check for King conditions and update the board
+						updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);			//update the board with final movements	
 						cout << "\nValid Double Jump 1 MOVE !\n";
 						jumps = 1;
 						jumps++;
@@ -420,9 +424,10 @@ bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int 
 
 				else
 				{
-					boardArray[jumpR][jumpC] = 1;					//make the enemy position jumped to be an EMPTY(.) space
-					updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);
-					for (int i = 0; i < Rows - 2; i++)				//copy final CORRECT result into buffer array
+					boardArray[jumpR][jumpC] = 1;								//make the enemy position jumped to be an EMPTY(.) space
+					checkKingConditions(player, boardArray, c_2y, c_1x, c_1y);	//check for King conditions and update the board
+					updateBoard(boardArray, c_1x, c_1y, c_2x, c_2y);			//update the board with final movements
+					for (int i = 0; i < Rows - 2; i++)							//copy final CORRECT result into buffer array
 					{
 						for (int j = 0; j < Cols - 2; j++)
 						{
@@ -465,6 +470,10 @@ int charConvert(char charToConv)
 		return 3;
 	if (charToConv == ' ')
 		return 0;
+	if (charToConv == 'X')
+		return 4;
+	if (charToConv == 'O')
+		return 5;
 }
 
 char intConvert(int intToConv)
@@ -477,7 +486,31 @@ char intConvert(int intToConv)
 		return 'o';
 	if (intToConv == 0)
 		return ' ';
+	if (intToConv == 4)
+		return 'X';
+	if (intToConv == 5)
+		return 'O';
 }
+
+void checkKingConditions(int player, int board[Rows - 2][Cols - 2], int destRowCordinate, int sourceColCordinate, int sourceRowCordinate)
+{
+	if (player == 2)  // for player x
+	{
+		if ((destRowCordinate - 48) == 1)   //if destination row is 1
+		{
+			board[8 - (sourceRowCordinate - 48)][sourceColCordinate - 97] = 4;
+		}
+	}
+	
+	if (player == 3)  // for player o
+	{
+		if ((destRowCordinate - 48) == 8)   //if destination row is 8
+		{
+			board[8 - (sourceRowCordinate - 48)][sourceColCordinate - 97] = 5;
+		}
+	}
+}
+
 
 bool checkWin(int player, int board[Rows - 2][Cols - 2])
 {
