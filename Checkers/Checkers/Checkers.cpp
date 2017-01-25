@@ -17,7 +17,7 @@ int const Rows = 10;
 int jumps = 0;
 int bufferBoard[Rows - 2][Cols - 2];
 
-void DisplayBoard(int board[Rows-2][Cols-2]);
+void DisplayBoard(int board[Rows - 2][Cols - 2]);
 bool CheckIfTurnisValid(int player, int c_1x, int c_1y, int c_2x, int c_2y, int board[Rows - 2][Cols - 2], int numberOfValidInpChars);
 int charConvert(char charToConv);
 char intConvert(int intToConv);
@@ -25,7 +25,6 @@ void updateBoard(int board[Rows - 2][Cols - 2], int c_1x, int c_1y, int c_2x, in
 bool InputCheck(int player, int board[Rows - 2][Cols - 2]);
 void checkKingConditions(int player, int board[Rows - 2][Cols - 2], int destRowCordinate, int sourceColCordinate, int sourceRowCordinate);
 bool checkWin(int player, int board[Rows - 2][Cols - 2]);
-
 
 
 int main()
